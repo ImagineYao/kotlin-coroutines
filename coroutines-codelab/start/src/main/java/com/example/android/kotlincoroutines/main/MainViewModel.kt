@@ -22,6 +22,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.android.kotlincoroutines.util.BACKGROUND
 import com.example.android.kotlincoroutines.util.singleArgViewModelFactory
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -124,7 +125,13 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
      */
     fun refreshTitle() {
         // TODO: Convert refreshTitle to use coroutines
-        viewModelScope.launch {
+        launchDataLoad {
+            repository.refreshTitle()
+        }
+    }
+
+    private fun launchDataLoad(block: suspend () -> Unit) : Job {
+        return viewModelScope.launch {
             try {
                 _spinner.value = true
                 repository.refreshTitle()
@@ -134,16 +141,5 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
                 _spinner.value = false
             }
         }
-//        _spinner.value = true
-//        repository.refreshTitleWithCallbacks(object : TitleRefreshCallback {
-//            override fun onCompleted() {
-//                _spinner.postValue(false)
-//            }
-//
-//            override fun onError(cause: Throwable) {
-//                _snackBar.postValue(cause.message)
-//                _spinner.postValue(false)
-//            }
-//        })
     }
 }
